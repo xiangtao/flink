@@ -114,6 +114,24 @@ public class SessionContext {
         this.executionContext = new ExecutionContext(executionContext);
     }
 
+    /**
+     * Reset key's property to default. It will rebuild a new {@link ExecutionContext}.
+     *
+     * <p>If key is not defined in default config file, remove it from session configuration.
+     */
+    public void reset(String key) {
+        Configuration configuration = defaultContext.getFlinkConfig();
+        if (configuration.containsKey(key)) {
+            // If has default key to set default value.
+            String defaultValue =
+                    configuration.get(ConfigOptions.key(key).stringType().noDefaultValue());
+            this.set(key, defaultValue);
+        } else {
+            ConfigOption<String> keyToDelete = ConfigOptions.key(key).stringType().noDefaultValue();
+            sessionConfiguration.removeConfig(keyToDelete);
+        }
+    }
+
     /** Set properties. It will rebuild a new {@link ExecutionContext} */
     public void set(String key, String value) {
         Configuration originConfiguration = sessionConfiguration.clone();

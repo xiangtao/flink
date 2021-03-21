@@ -284,7 +284,7 @@ public class CliClient implements AutoCloseable {
                 callClear();
                 break;
             case RESET:
-                callReset();
+                callReset(cmdCall);
                 break;
             case SET:
                 callSet(cmdCall);
@@ -412,9 +412,18 @@ public class CliClient implements AutoCloseable {
         clearTerminal();
     }
 
-    private void callReset() {
+    private void callReset(SqlCommandCall cmdCall) {
         try {
-            executor.resetSessionProperties(sessionId);
+            // reset all session properties
+            if (cmdCall.operands.length == 0) {
+                executor.resetSessionProperties(sessionId);
+
+            }
+            // reset a session property
+            else {
+                String key = cmdCall.operands[0].trim();
+                executor.resetSessionProperty(sessionId, key);
+            }
         } catch (SqlExecutionException e) {
             printExecutionException(e);
             return;
